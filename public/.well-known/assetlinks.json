@@ -1,8 +1,12 @@
-[{
-      "relation": ["delegate_permission/common.handle_all_urls"],
-      "target": {
-        "namespace": "android_app",
-        "package_name": "com.rodrigoname.codelyflix",
-        "sha256_cert_fingerprints": ["50:BD:9A:1D:61:51:95:6E:CF:EE:DE:1F:21:06:5C:3E:78:99:A6:2C:D0:07:91:BC:8F:1F:0C:CA:EA:51:FD:26"]
-      }
-    }]
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.SEU_PACOTE_AQUI.codelyflix",
+      "sha256_cert_fingerprints": [
+        "COLE_AQUI_O_SHA256_DO_SEU_APK"
+      ]
+    }
+  }
+]

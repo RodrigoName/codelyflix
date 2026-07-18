@@ -1,104 +1,169 @@
-# CodelyFlix 🎬
+<div align="center">
 
-Plataforma de streaming (estilo Netflix) construída 100% com serviços gratuitos:
-**Next.js 14 + Supabase + Vercel/Cloudflare Pages**.
+# 🎬 CodelyFlix
 
-## O que já está pronto nesta entrega
+**Plataforma de streaming de filmes e séries — full stack, autenticação real e app Android**
 
-- **Catálogo completo**: filmes, séries, temporadas, episódios
-- **Home** com banner, "Continue assistindo", fileiras por categoria
-- **Página do filme** com player, sinopse, elenco, direção
-- **Página da série** com temporadas e episódios
-- **Busca avançada** (nome, texto completo em português)
-- **Páginas de categoria** (ação, terror, comédia, etc.)
-- **Login** (e-mail/senha, Google, GitHub via Supabase Auth)
-- **Minha Lista** (favoritos)
-- **Painel Admin** (`/admin`) protegido por login:
-  - Dashboard com contadores
-  - Cadastrar / editar / excluir filmes
-  - Listagem de séries
-- **Player de vídeo** com legendas (.vtt) e progresso salvo automaticamente
-- **Banco de dados completo** (`supabase/schema.sql`) com RLS configurado
-- **API routes**: cadastro de filmes, progresso de visualização, busca
+[![Next.js](https://img.shields.io/badge/Next.js-14.2-black?logo=next.js)](https://nextjs.org)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.5-blue?logo=typescript)](https://www.typescriptlang.org)
+[![Supabase](https://img.shields.io/badge/Supabase-Postgres%20%2B%20Auth-3ECF8E?logo=supabase)](https://supabase.com)
+[![Tailwind CSS](https://img.shields.io/badge/TailwindCSS-3.4-38B2AC?logo=tailwindcss)](https://tailwindcss.com)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
+[![PWA](https://img.shields.io/badge/PWA-ready-5A0FC8?logo=pwa)](#-app-android-apk)
 
-## Como rodar (grátis, do zero)
+*Um clone funcional de plataforma de streaming, construído do zero como projeto pessoal —
+catálogo, player, autenticação, painel administrativo e app Android, tudo rodando
+100% em infraestrutura gratuita.*
 
-### 1) Banco de dados — Supabase (grátis)
-1. Crie uma conta em https://supabase.com e um novo projeto (plano Free)
-2. Vá em **SQL Editor** → cole o conteúdo de `supabase/schema.sql` → Run
-3. Vá em **Project Settings → API** e copie:
-   - `Project URL`
-   - `anon public key`
-   - `service_role key` (nunca exponha essa no frontend!)
-4. Em **Authentication → Providers**, ative Google e/ou GitHub se quiser login social
+</div>
 
-### 2) Variáveis de ambiente
+---
+
+## 📸 Preview
+
+<p align="center">
+  <img src="docs/screenshots/home.png" alt="Home do CodelyFlix" width="90%" />
+</p>
+<p align="center">
+  <img src="docs/screenshots/filme.png" alt="Página do filme" width="45%" />
+  <img src="docs/screenshots/admin-dashboard.png" alt="Painel administrativo" width="45%" />
+</p>
+
+> Ainda sem prints? Veja [`docs/screenshots/README.md`](docs/screenshots/README.md)
+> para o guia de quais telas fotografar e como nomear os arquivos.
+
+## ✨ Funcionalidades
+
+| Área | O que tem |
+|---|---|
+| 🏠 **Catálogo** | Home com banner em destaque, fileiras por categoria, "Continue assistindo" |
+| 🎬 **Filmes & Séries** | Página de detalhes, temporadas e episódios, elenco, direção, sinopse |
+| 🔍 **Busca** | Full-text search em português (título, categoria) |
+| 🔐 **Autenticação real** | Login/cadastro por e-mail e senha, Google e GitHub (OAuth via Supabase Auth + cookies) |
+| 🔒 **Player protegido** | Catálogo é público; assistir exige login (redireciona e volta pro mesmo título depois) |
+| ▶️ **Player de vídeo** | Suporta YouTube, Vimeo e links diretos (.mp4/.m3u8), legendas `.vtt`, progresso salvo automaticamente |
+| 🛠️ **Painel Admin** | Dashboard, CRUD de filmes, cadastro de fontes de vídeo e legendas — tudo pelo navegador |
+| ❤️ **Minha Lista** | Favoritos por usuário |
+| 📱 **App Android (PWA/TWA)** | Instalável como app nativo, com ícone e splash próprios |
+| 🛡️ **Banco seguro** | Row Level Security (RLS) em todas as tabelas sensíveis no Postgres/Supabase |
+
+## 🧱 Stack técnica
+
+- **Frontend/Backend**: [Next.js 14](https://nextjs.org) (App Router, Server Components, Route Handlers)
+- **Linguagem**: TypeScript
+- **Estilo**: Tailwind CSS
+- **Banco de dados**: PostgreSQL via [Supabase](https://supabase.com)
+- **Autenticação**: Supabase Auth (`@supabase/ssr`) — e-mail/senha, Google, GitHub
+- **Player**: `react-player` (YouTube, Vimeo, HLS, MP4)
+- **Hospedagem**: [Vercel](https://vercel.com) (deploy contínuo via GitHub)
+- **App mobile**: PWA + [PWABuilder](https://www.pwabuilder.com) (Trusted Web Activity → `.apk`/`.aab`)
+
+Toda a stack roda nos planos gratuitos dessas ferramentas.
+
+## 🏗️ Arquitetura (visão geral)
+
+```
+┌─────────────────────┐        ┌──────────────────────────┐
+│   Next.js (Vercel)  │◄──────►│   Supabase (Postgres)    │
+│                     │        │                          │
+│  • Server Components│        │  • Auth (users/sessions) │
+│  • Route Handlers   │        │  • RLS policies          │
+│  • Middleware       │        │  • Storage (opcional)    │
+│    (protege /admin) │        │                          │
+└──────────┬──────────┘        └──────────────────────────┘
+           │
+           ▼
+┌─────────────────────┐
+│  PWA → PWABuilder    │
+│  → APK/AAB Android   │
+└─────────────────────┘
+```
+
+## 🚀 Rodando localmente
+
+### Pré-requisitos
+- Node.js 18+
+- Conta gratuita no [Supabase](https://supabase.com)
+
+### 1. Clone e instale
+```bash
+git clone https://github.com/RodrigoName/codelyflix.git
+cd codelyflix
+npm install
+```
+
+### 2. Configure o banco de dados
+No SQL Editor do seu projeto Supabase, rode o conteúdo de [`supabase/schema.sql`](./supabase/schema.sql).
+Ele cria todas as tabelas, RLS policies e o trigger que gera automaticamente um perfil
+(`role = 'user'`) para cada novo usuário cadastrado.
+
+### 3. Configure as variáveis de ambiente
 ```bash
 cp .env.local.example .env.local
 ```
-Preencha com as chaves do passo anterior.
+Preencha com as chaves do seu projeto Supabase (**Settings → API Keys**):
+```
+NEXT_PUBLIC_SUPABASE_URL=
+NEXT_PUBLIC_SUPABASE_ANON_KEY=
+SUPABASE_SERVICE_ROLE_KEY=
+```
 
-### 3) Instalar e rodar localmente
+### 4. Rode
 ```bash
-npm install
 npm run dev
 ```
-Acesse http://localhost:3000
+Acesse [http://localhost:3000](http://localhost:3000).
 
-### 4) Login e permissão de administrador
+## 👤 Virando administrador
 
-A autenticação agora é real (usa `@supabase/ssr`, sessão via cookies, protegida no `middleware.ts`).
+1. Cadastre-se em `/login`
+2. No Supabase, **Table Editor → profiles**, ache sua linha e mude `role` para `admin`
+3. Acesse `/admin` — dashboard, CRUD de filmes e cadastro de vídeo/legenda já liberados
 
-1. Rode o projeto e acesse `/login` — cadastre-se com e-mail/senha (ou ative Google/GitHub no passo 7)
-2. Ao se cadastrar, um trigger no banco (já incluso no `schema.sql`) cria automaticamente uma
-   linha na tabela `profiles` com `role = 'user'`
-3. Para virar administrador: no Supabase, vá em **Table Editor → profiles**, ache a linha com
-   seu e-mail/nome, e mude o campo `role` de `user` para `admin`
-4. Faça logout e login de novo (ou simplesmente recarregue a página) — agora `/admin` deve abrir normalmente
+## ☁️ Deploy
 
-Se tentar acessar `/admin` sem estar logado, você é redirecionado para `/login`.
-Se estiver logado mas sem `role = admin`, é redirecionado para a Home.
+1. Suba o repositório para o GitHub
+2. Importe o projeto na [Vercel](https://vercel.com)
+3. Configure as mesmas 3 variáveis de ambiente em **Project Settings → Environment Variables**
+4. No Supabase, em **Authentication → URL Configuration**, adicione a URL de produção
+   em **Site URL** e em **Redirect URLs** (`https://seu-projeto.vercel.app/**`)
+5. Deploy automático a cada `git push`
 
-### 5) Deploy gratuito
-- **Vercel** (recomendado p/ Next.js): importe o repositório no https://vercel.com,
-  configure as 3 variáveis de ambiente, deploy automático a cada push.
-- **Cloudflare Pages**: alternativa gratuita com CDN global.
+## 📱 App Android (APK)
 
-## Cadastrando conteúdo
+O projeto já inclui `manifest.json`, ícones e Service Worker (PWA pronta). Para gerar o `.apk`:
 
-1. Vá em `/admin/movies/new` e preencha os dados do filme (título, poster, sinopse etc.) e salve
-2. Você é levado automaticamente para a tela de edição do filme, onde tem duas seções extras:
-   - **Fontes de vídeo**: cole o link do YouTube (marcado como "Não listado"), Vimeo,
-     Supabase Storage ou qualquer URL direta `.mp4`/`.m3u8`. Pode cadastrar mais de
-     uma qualidade (480p/720p/1080p) — o player usa a de melhor qualidade disponível
-   - **Legendas**: cole a URL de um arquivo `.vtt` (ex: hospedado no Supabase Storage)
+1. Publique o site (Vercel)
+2. Acesse [pwabuilder.com](https://www.pwabuilder.com), cole a URL do site publicado
+3. **Package for stores → Android** → preencha o Package ID e gere o pacote
+4. Adicione o `assetlinks.json` gerado em `public/.well-known/assetlinks.json` (necessário
+   para o app abrir em tela cheia, sem a barra de navegador) e faça o deploy de novo
 
-Tudo isso já é feito pelo painel visual — não precisa mais mexer direto no Supabase
-Table Editor para cadastrar filmes.
+📦 A última versão pronta para instalar está sempre disponível em
+**[Releases](../../releases)** deste repositório.
 
-## ⚠️ Aviso importante sobre direitos autorais
+## 🗺️ Roadmap
 
-Este projeto é uma **arquitetura de plataforma**, não um serviço de distribuição
-de conteúdo. Se for usar para produção, hospede apenas:
-- vídeos próprios,
-- conteúdo sob licença aberta,
-- incorporações autorizadas (ex.: vídeos públicos do YouTube, respeitando os termos da plataforma).
+- [ ] CRUD completo de séries/temporadas/episódios no painel admin
+- [ ] Gerenciamento de usuários e assinaturas
+- [ ] Upload direto de vídeo/imagem (sem precisar colar link externo)
+- [ ] Seletor manual de qualidade no player
+- [ ] Publicação na Google Play Store
 
-Distribuir filmes/séries protegidos sem autorização dos detentores dos direitos
-não é permitido.
+## ⚠️ Aviso sobre direitos autorais
 
-## Próximas etapas (posso continuar quando você quiser)
+Este é um projeto de **arquitetura de plataforma** para fins de estudo/portfólio.
+Ele não distribui conteúdo protegido por direitos autorais — hospede apenas vídeos
+próprios, com licença aberta, ou com autorização explícita dos detentores dos direitos.
 
-- CRUD completo de séries/temporadas/episódios no admin (cadastro de vídeo por episódio)
-- Gerenciamento de usuários e assinaturas no painel admin
-- Upload de imagens/vídeos direto pelo formulário (sem precisar colar link externo)
-- Seletor de qualidade manual no player (hoje ele pega a melhor automaticamente)
-- Geração de descrições/capas com IA
+## 📄 Licença
 
-✅ App mobile (PWA + gerador de APK) — concluído
-✅ Cadastro de fontes de vídeo (YouTube/Vimeo/Storage) e legendas pelo painel — concluído
-✅ Autenticação real no /admin (sessão via cookies + papel admin) — concluído
+Distribuído sob a licença MIT. Veja [`LICENSE`](./LICENSE) para mais detalhes.
 
-Se a resposta for cortada por limite de uso, é só me chamar de novo com
-**"continua"** que eu sigo exatamente de onde parou — este README serve
-como checklist do que já foi entregue.
+---
+
+<div align="center">
+
+Desenvolvido por **Rodrigo** — projeto pessoal de estudo em Next.js + Supabase.
+
+</div>
