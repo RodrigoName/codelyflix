@@ -1,10 +1,10 @@
 "use client";
 
 import { createClient } from "@/lib/supabase/client";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { Suspense, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function LoginPage() {
+function LoginForm() {
   const [mode, setMode] = useState<"login" | "signup">("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -13,12 +13,19 @@ export default function LoginPage() {
   const [info, setInfo] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
 
+  // Para onde mandar o usuário depois de logar — por padrão a Home,
+  // mas se ele veio de um filme travado (ex: /login?next=/filme/12),
+  // volta direto pra lá.
+  const nextPath = searchParams.get("next") || "/";
+
   async function loginWithProvider(provider: "google" | "github") {
+    const callbackUrl = `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`;
     await supabase.auth.signInWithOAuth({
       provider,
-      options: { redirectTo: `${window.location.origin}/auth/callback` },
+      options: { redirectTo: callbackUrl },
     });
   }
 
@@ -33,7 +40,7 @@ export default function LoginPage() {
       setError("E-mail ou senha inválidos.");
       return;
     }
-    router.push("/");
+    router.push(nextPath);
     router.refresh();
   }
 
@@ -53,7 +60,7 @@ export default function LoginPage() {
       password,
       options: {
         data: { full_name: name },
-        emailRedirectTo: `${window.location.origin}/auth/callback`,
+        emailRedirectTo: `${window.location.origin}/auth/callback?next=${encodeURIComponent(nextPath)}`,
       },
     });
     setLoading(false);
@@ -70,7 +77,7 @@ export default function LoginPage() {
     // Se a confirmação de e-mail estiver ativada no Supabase, não existe sessão
     // ainda — o usuário precisa clicar no link recebido por e-mail.
     if (data.session) {
-      router.push("/");
+      router.push(nextPath);
       router.refresh();
     } else {
       setInfo("Conta criada! Verifique seu e-mail para confirmar o cadastro antes de entrar.");
@@ -163,5 +170,13 @@ export default function LoginPage() {
         </div>
       </div>
     </main>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginForm />
+    </Suspense>
   );
 }

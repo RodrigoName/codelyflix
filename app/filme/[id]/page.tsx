@@ -1,5 +1,6 @@
 import Navbar from "@/components/Navbar";
 import VideoPlayer from "@/components/VideoPlayer";
+import LoginToWatch from "@/components/LoginToWatch";
 import { getMovieById } from "@/services/movies";
 import { createClient } from "@/lib/supabase/server";
 import { notFound } from "next/navigation";
@@ -40,11 +41,13 @@ export default async function FilmePage({ params }: { params: { id: string } }) 
     <main>
       <Navbar />
       <div className="pt-24 px-6 md:px-12 pb-20 max-w-5xl mx-auto">
-        {playUrl ? (
+        {!authData?.user ? (
+          <LoginToWatch redirectTo={`/filme/${movie.id}`} />
+        ) : playUrl ? (
           <VideoPlayer
             url={playUrl}
             movieId={movie.id}
-            userId={authData?.user?.id}
+            userId={authData.user.id}
             startAt={startAt}
             subtitleUrl={subs?.[0]?.file_url}
           />
