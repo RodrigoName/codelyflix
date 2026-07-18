@@ -1,3 +1,8 @@
+// Página sempre renderizada no servidor a cada requisição —
+// evita servir contagens/imagens desatualizadas do Supabase em cache.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import MovieForm from "@/components/admin/MovieForm";
 import VideoSourcesManager from "@/components/admin/VideoSourcesManager";
 import { getMovieById } from "@/services/movies";

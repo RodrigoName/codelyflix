@@ -1,3 +1,8 @@
+// Página sempre renderizada no servidor a cada requisição —
+// evita servir contagens/imagens desatualizadas do Supabase em cache.
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 import { getSeries } from "@/services/series";
 
 export default async function SeriesAdmin() {
